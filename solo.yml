@@ -1,0 +1,13 @@
+name: susu
+
+processes:
+  Vite Dev:
+    command: pnpm run dev
+    auto_start: true
+    auto_restart: false
+    restart_when_changed:
+      - src/**/*.tsx
+      - src/**/*.ts
+      - src/**/*.css
+      - package.json
+      - vite.config.ts
