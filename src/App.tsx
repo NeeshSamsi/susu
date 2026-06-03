@@ -5,6 +5,8 @@ import Canvas from "./components/Canvas"
 import type { ExperimentProps } from "./types"
 import LogoWiggle from "./experiments/logo-wiggle"
 import LogoExplode from "./experiments/logo-explode"
+import PatternWiggle from "./experiments/pattern-wiggle"
+import VerticalDance from "./experiments/vertical-dance"
 
 const experiments: Record<
   string,
@@ -12,6 +14,8 @@ const experiments: Record<
 > = {
   "logo-wiggle": { title: "Wiggle", component: LogoWiggle },
   "logo-explode": { title: "Explode", component: LogoExplode },
+  "pattern-wiggle": { title: "Pattern Wiggle", component: PatternWiggle },
+  "vertical-dance": { title: "Vertical Dance", component: VerticalDance },
 }
 
 function App() {

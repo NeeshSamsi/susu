@@ -9,7 +9,7 @@ type AnimParams = {
   hoverSpeed: number
 }
 
-const DEFAULTS: AnimParams = { rotation: 10, speed: 3, hoverRotation: 22, hoverSpeed: 7 }
+const DEFAULTS: AnimParams = { rotation: 3, speed: 3.5, hoverRotation: 12, hoverSpeed: 4 }
 
 // speed 1 → 0.5s, speed 20 → 0.025s
 const toDuration = (speed: number) => 0.5 / speed
@@ -52,12 +52,12 @@ function Slider({ label, value, min, max, step, display, onChange }: SliderProps
   return (
     <div className="flex flex-col gap-1">
       <span className="text-[#000C31]/60 text-xs">{label}</span>
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-2 min-w-0">
         <input
           type="range"
           min={min} max={max} step={step} value={value}
           onChange={e => onChange(Number(e.target.value))}
-          className="flex-1 h-[3px] appearance-none rounded-full cursor-pointer
+          className="w-0 min-w-0 flex-1 h-[3px] appearance-none rounded-full cursor-pointer
             bg-[#000C31]/15
             [&::-webkit-slider-thumb]:appearance-none
             [&::-webkit-slider-thumb]:w-3
@@ -168,7 +168,7 @@ export default function LogoWiggle({ isPlaying }: ExperimentProps) {
         ))}
       </svg>
 
-      <div className="absolute right-4 top-1/2 -translate-y-1/2 w-44 flex flex-col gap-2.5 bg-[#FFFAEF] border border-[#000C31]/12 rounded-2xl px-5 py-4 shadow-sm">
+      <div className="absolute right-4 top-1/2 -translate-y-1/2 w-44 overflow-hidden flex flex-col gap-2.5 bg-[#FFFAEF] border border-[#000C31]/12 rounded-2xl px-5 py-4 shadow-sm">
         <Slider
           label="Rotation"
           value={params.rotation}
