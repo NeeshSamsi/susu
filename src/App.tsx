@@ -10,15 +10,20 @@ import LogoExplodeV2 from "./experiments/logo-explode-v2"
 import PatternWiggle from "./experiments/pattern-wiggle"
 import VerticalDance from "./experiments/vertical-dance"
 
+import LogoWave from "./experiments/logo-wave"
+import CameraWiggle from "./experiments/camera-wiggle"
+
 const experiments: Record<
   string,
-  { title: string; component: React.ComponentType<ExperimentProps>; hideToggle?: boolean }
+  { title: string; component: React.ComponentType<ExperimentProps>; hideToggle?: boolean; hideReset?: boolean }
 > = {
-  "logo-wiggle": { title: "Wiggle", component: LogoWiggle },
-  "pattern-wiggle": { title: "Pattern Wiggle", component: PatternWiggle },
-  "logo-explode": { title: "Explode", component: LogoExplode, hideToggle: true },
-  "logo-explode-v2": { title: "Explode v2", component: LogoExplodeV2, hideToggle: true },
-  "vertical-dance": { title: "Vertical Dance", component: VerticalDance },
+  "logo-wiggle": { title: "Wiggle", component: LogoWiggle, hideReset: true },
+  "pattern-wiggle": { title: "Pattern Wiggle", component: PatternWiggle, hideReset: true },
+  "logo-explode": { title: "Explode", component: LogoExplode, hideToggle: true, hideReset: true },
+  "logo-explode-v2": { title: "Explode v2", component: LogoExplodeV2, hideToggle: true, hideReset: true },
+  "vertical-dance": { title: "Vertical Dance", component: VerticalDance, hideReset: true },
+  "logo-wave": { title: "Wave", component: LogoWave },
+  "camera-wiggle": { title: "Camera", component: CameraWiggle, hideToggle: true, hideReset: true },
 }
 
 function App() {
@@ -67,7 +72,7 @@ function App() {
             ]),
           )}
         />
-        <Canvas key={activeId} hideToggle={experiment.hideToggle}>
+        <Canvas key={activeId} hideToggle={experiment.hideToggle} hideReset={experiment.hideReset}>
           {(props) => <ActiveComponent {...props} />}
         </Canvas>
       </div>
