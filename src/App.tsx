@@ -12,6 +12,7 @@ import VerticalDance from "./experiments/vertical-dance"
 
 import LogoWave from "./experiments/logo-wave"
 import CameraWiggle from "./experiments/camera-wiggle"
+import CameraWiggleV2 from "./experiments/camera-wiggle-v2"
 
 const experiments: Record<
   string,
@@ -22,8 +23,9 @@ const experiments: Record<
   "logo-explode": { title: "Explode", component: LogoExplode, hideToggle: true, hideReset: true },
   "logo-explode-v2": { title: "Explode v2", component: LogoExplodeV2, hideToggle: true, hideReset: true },
   "vertical-dance": { title: "Vertical Dance", component: VerticalDance, hideReset: true },
-  "logo-wave": { title: "Wave", component: LogoWave },
+  "logo-wave": { title: "Wave", component: LogoWave }, // toggle and reset visible
   "camera-wiggle": { title: "Camera", component: CameraWiggle, hideToggle: true, hideReset: true },
+  "camera-wiggle-v2": { title: "Camera v2", component: CameraWiggleV2, hideToggle: true, hideReset: true },
 }
 
 function App() {

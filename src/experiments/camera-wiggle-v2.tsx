@@ -43,6 +43,8 @@ const DESTINATIONS = [
   { x: -70, y:  60 },
 ]
 
+const PALETTE = ['#114DFF', '#7F3DE2', '#E146D4', '#E14646', '#EBB330']
+
 type SliderProps = {
   label: string
   value: number
@@ -76,11 +78,15 @@ function Slider({ label, value, min, max, step, display, onChange }: SliderProps
   )
 }
 
-export default function CameraWiggle(_props: ExperimentProps) {
+export default function CameraWiggleV2(_props: ExperimentProps) {
   const [phase, setPhase] = useState<Phase>('wiggling')
   const [cameraState, setCameraState] = useState<CameraState>('idle')
   const [progress, setProgress] = useState(0)
   const [sensitivity, setSensitivity] = useState(20)
+
+  const [bgColor, setBgColor] = useState(PALETTE[0])
+  const [nextColor, setNextColor] = useState(PALETTE[1])
+  const circleRef = useRef<HTMLDivElement>(null)
 
   const svgRef = useRef<SVGSVGElement>(null)
   const videoRef = useRef<HTMLVideoElement>(null)
@@ -165,6 +171,28 @@ export default function CameraWiggle(_props: ExperimentProps) {
     stopTensionShake()
     gsap.set(svgRef.current, { scale: 1, transformOrigin: '50% 50%' })
     gsap.killTweensOf(shapesRef.current)
+
+    // Trigger expanding background circle
+    const currentBg = bgColor
+    const availableColors = PALETTE.filter(c => c !== currentBg)
+    const newColor = availableColors[Math.floor(Math.random() * availableColors.length)]
+    
+    setNextColor(newColor)
+    
+    if (circleRef.current) {
+      gsap.fromTo(circleRef.current, 
+        { scale: 0 },
+        { 
+          scale: 1, 
+          duration: 0.6, 
+          ease: 'power3.out',
+          onComplete: () => {
+            setBgColor(newColor)
+            gsap.set(circleRef.current, { scale: 0 })
+          }
+        }
+      )
+    }
 
     const rotations = shapesRef.current.map(() => Math.round((Math.random() * 100) - 50))
     const tl = gsap.timeline({ onComplete: startReform })
@@ -324,35 +352,49 @@ export default function CameraWiggle(_props: ExperimentProps) {
   const initialPaths = VARIATIONS[0]
 
   return (
-    <>
+    <div className="absolute inset-0 w-full h-full overflow-hidden" style={{ backgroundColor: bgColor }}>
+      {/* Expanding circle background */}
+      <div 
+        ref={circleRef}
+        className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full"
+        style={{ 
+          width: '200vmax', 
+          height: '200vmax', 
+          backgroundColor: nextColor,
+          transform: 'scale(0)' 
+        }}
+      />
+
       {/* Progress bar */}
-      <div className="absolute top-0 left-0 right-0 h-1.5 bg-[#000C31]/10 z-10">
+      <div className="hidden absolute top-0 left-0 right-0 h-1.5 bg-[#FFFAEF]/10 z-10">
         <div
-          className="h-full bg-[#000C31] transition-none"
+          className="h-full bg-[#FFFAEF] transition-none"
           style={{ width: `${Math.min((progress / 100) * 100, 100)}%` }}
         />
         {phase === 'tension' && (
-          <div className="absolute right-0 top-0 h-full w-3 bg-[#000C31] animate-pulse rounded-r-full" />
+          <div className="absolute right-0 top-0 h-full w-3 bg-[#FFFAEF] animate-pulse rounded-r-full" />
         )}
       </div>
 
       {/* Logo */}
-      <svg
-        ref={svgRef}
-        viewBox="0 0 100 100"
-        fill="none"
-        xmlns="http://www.w3.org/2000/svg"
-        className="w-80 h-96"
-        overflow="visible"
-      >
-        {initialPaths.map((d, i) => (
-          <path key={i} data-shape={i} fill="#000C31" d={d} />
-        ))}
-      </svg>
+      <div className="absolute inset-0 flex items-center justify-center z-10">
+        <svg
+          ref={svgRef}
+          viewBox="0 0 100 100"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+          className="w-80 h-96"
+          overflow="visible"
+        >
+          {initialPaths.map((d, i) => (
+            <path key={i} data-shape={i} fill="#FFFAEF" d={d} />
+          ))}
+        </svg>
+      </div>
 
       {/* Camera preview */}
       <div
-        className="absolute bottom-4 right-4 rounded-xl overflow-hidden shadow-md border border-[#000C31]/10 cursor-pointer"
+        className="absolute bottom-4 right-4 rounded-xl overflow-hidden shadow-md border border-[#FFFAEF]/20 bg-[#000000]/10 cursor-pointer z-20 backdrop-blur-sm"
         style={{ width: 160, height: 120 }}
         onClick={cameraState === 'idle' || cameraState.startsWith('error') ? startCamera : undefined}
       >
@@ -370,24 +412,24 @@ export default function CameraWiggle(_props: ExperimentProps) {
           }}
         />
         {cameraState === 'idle' && (
-          <div className="w-full h-full bg-[#000C31]/5 flex items-center justify-center text-[10px] text-[#000C31]/40">
+          <div className="w-full h-full flex items-center justify-center text-[10px] text-[#FFFAEF]/70 font-medium">
             Tap to enable camera
           </div>
         )}
         {cameraState === 'requesting' && (
-          <div className="w-full h-full bg-[#000C31]/5 flex items-center justify-center text-[10px] text-[#000C31]/30">
+          <div className="w-full h-full flex items-center justify-center text-[10px] text-[#FFFAEF]/60 font-medium">
             Requesting…
           </div>
         )}
         {cameraState === 'error_permission' && (
-          <div className="w-full h-full bg-[#000C31]/5 flex flex-col items-center justify-center gap-1 p-2">
-            <span className="text-[10px] text-[#000C31]/40 text-center">Camera access denied</span>
-            <span className="text-[10px] text-[#000C31]/30">Tap to retry</span>
+          <div className="w-full h-full flex flex-col items-center justify-center gap-1 p-2">
+            <span className="text-[10px] text-[#FFFAEF]/70 text-center font-medium">Camera access denied</span>
+            <span className="text-[10px] text-[#FFFAEF]/50">Tap to retry</span>
           </div>
         )}
         {cameraState === 'error_no_camera' && (
-          <div className="w-full h-full bg-[#000C31]/5 flex items-center justify-center p-2">
-            <span className="text-[10px] text-[#000C31]/40 text-center">No camera found</span>
+          <div className="w-full h-full flex items-center justify-center p-2">
+            <span className="text-[10px] text-[#FFFAEF]/70 text-center font-medium">No camera found</span>
           </div>
         )}
       </div>
@@ -410,6 +452,6 @@ export default function CameraWiggle(_props: ExperimentProps) {
           onChange={v => { setDrainRate(v); drainRateRef.current = v }}
         />
       </div>
-    </>
+    </div>
   )
 }
