@@ -1,6 +1,7 @@
 import { useRef, useEffect, useState } from 'react'
 import gsap from 'gsap'
 import type { ExperimentProps } from '../types'
+import staticPresets from '../data/presets.json'
 
 const PATHS = [
   "M89.5384 49.7005L90.9423 54.9125L92.7754 61.5192C93.5445 64.291 95.6563 63.0934 95.9618 64.1945C96.1093 64.7261 95.832 65.2455 95.0934 65.925C94.0825 66.8377 92.0809 68.1288 90.98 68.4137C89.8792 68.6986 89.2388 68.2132 88.7177 66.6388L88.3939 65.6238C87.3614 68.1292 85.1611 69.9195 83.038 70.4689C78.7918 71.5676 75.6244 69.4165 74.2759 64.5564L72.8959 59.5823C72.169 56.9624 70.3555 57.7166 70.0394 56.5775C69.9025 56.0839 70.104 55.7469 70.9317 55.085C72.3723 53.8983 74.9503 52.2545 75.5794 52.0918C76.2084 51.929 76.5785 52.1995 76.7997 52.9968L78.2036 58.2089L79.51 62.9171C80.3106 65.8028 81.642 67.4117 83.9904 66.7633C86.0637 66.1861 87.6362 63.5002 86.7407 60.2728L85.6345 56.286C84.9076 53.6661 83.0942 54.4202 82.7781 53.2811C82.6412 52.7875 82.8426 52.4505 83.6704 51.7887C85.111 50.602 87.6889 48.9582 88.318 48.7954C88.9471 48.6326 89.3171 48.9031 89.5384 49.7005Z",
@@ -20,14 +21,6 @@ type Preset = {
 }
 
 const STORAGE_KEY = 'vertical-dance-presets'
-
-const DEFAULT_PRESET: Preset = {
-  id: 'preset-equal-letter-1',
-  name: 'Equal Letter 1',
-  tops: [20, 30, 30, 45],
-  bottoms: [30, 30, 20, 15],
-  duration: 0.6,
-}
 
 type SliderProps = {
   label: string
@@ -78,10 +71,14 @@ export default function VerticalDance({ isPlaying }: ExperimentProps) {
   const [presets, setPresets] = useState<Preset[]>(() => {
     try {
       const stored: Preset[] = JSON.parse(localStorage.getItem(STORAGE_KEY) ?? '[]')
-      const hasDefault = stored.some(p => p.id === DEFAULT_PRESET.id)
-      return hasDefault ? stored : [DEFAULT_PRESET, ...stored]
+      // Merge static presets with local storage, avoiding duplicates by ID
+      const all = [...(staticPresets as Preset[])]
+      stored.forEach(p => {
+        if (!all.some(ap => ap.id === p.id)) all.push(p)
+      })
+      return all
     } catch {
-      return [DEFAULT_PRESET]
+      return staticPresets as Preset[]
     }
   })
   const [newPresetName, setNewPresetName] = useState('')
@@ -145,7 +142,7 @@ export default function VerticalDance({ isPlaying }: ExperimentProps) {
   const savePreset = () => {
     if (!newPresetName.trim()) return
     const preset: Preset = {
-      id: Date.now().toString(),
+      id: `preset-${Date.now()}`,
       name: newPresetName.trim(),
       tops: [...tops],
       bottoms: [...bottoms],
@@ -153,8 +150,13 @@ export default function VerticalDance({ isPlaying }: ExperimentProps) {
     }
     const updated = [...presets, preset]
     setPresets(updated)
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(updated))
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(updated.filter(p => !staticPresets.some(sp => sp.id === p.id))))
     setNewPresetName('')
+    
+    console.log('--- NEW PRESET CREATED ---')
+    console.log('Copy this JSON to src/data/presets.json for permanent saving:')
+    console.log(JSON.stringify(preset, null, 2))
+    console.log('-------------------------')
   }
 
   const loadPreset = (p: Preset) => {

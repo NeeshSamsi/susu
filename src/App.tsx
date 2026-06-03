@@ -1,20 +1,23 @@
 import { useState, useEffect } from "react"
 import { BrowserRouter, useSearchParams } from "react-router-dom"
+import { Menu } from "lucide-react"
 import Sidebar from "./components/Sidebar"
 import Canvas from "./components/Canvas"
 import type { ExperimentProps } from "./types"
 import LogoWiggle from "./experiments/logo-wiggle"
 import LogoExplode from "./experiments/logo-explode"
+import LogoExplodeV2 from "./experiments/logo-explode-v2"
 import PatternWiggle from "./experiments/pattern-wiggle"
 import VerticalDance from "./experiments/vertical-dance"
 
 const experiments: Record<
   string,
-  { title: string; component: React.ComponentType<ExperimentProps> }
+  { title: string; component: React.ComponentType<ExperimentProps>; hideToggle?: boolean }
 > = {
   "logo-wiggle": { title: "Wiggle", component: LogoWiggle },
-  "logo-explode": { title: "Explode", component: LogoExplode },
   "pattern-wiggle": { title: "Pattern Wiggle", component: PatternWiggle },
+  "logo-explode": { title: "Explode", component: LogoExplode, hideToggle: true },
+  "logo-explode-v2": { title: "Explode v2", component: LogoExplodeV2, hideToggle: true },
   "vertical-dance": { title: "Vertical Dance", component: VerticalDance },
 }
 
@@ -24,7 +27,8 @@ function App() {
   })
   const [params] = useSearchParams()
   const activeId = params.get("experiment") ?? Object.keys(experiments)[0]
-  const ActiveComponent = experiments[activeId]?.component ?? LogoWiggle
+  const experiment = experiments[activeId] ?? experiments["logo-wiggle"]
+  const ActiveComponent = experiment.component
 
   useEffect(() => {
     localStorage.setItem("sidebar", sidebarOpen ? "open" : "closed")
@@ -43,10 +47,10 @@ function App() {
       <header className="h-10 flex items-center gap-3 px-4 border-b border-white/10 shrink-0 z-20">
         <button
           onClick={() => setSidebarOpen((o) => !o)}
-          className="text-white/50 hover:text-white transition-colors text-lg leading-none"
+          className="text-white/50 hover:text-white transition-colors flex items-center justify-center"
           title="Toggle sidebar ["
         >
-          ☰
+          <Menu size={18} />
         </button>
         <span className="text-white/70 text-sm font-medium tracking-wide">
           SuSu Experiments
@@ -63,7 +67,7 @@ function App() {
             ]),
           )}
         />
-        <Canvas key={activeId}>
+        <Canvas key={activeId} hideToggle={experiment.hideToggle}>
           {(props) => <ActiveComponent {...props} />}
         </Canvas>
       </div>

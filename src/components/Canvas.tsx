@@ -3,9 +3,10 @@ import Controls from './Controls'
 
 type CanvasProps = {
   children: (props: { isPlaying: boolean; onReset: () => void }) => React.ReactNode
+  hideToggle?: boolean
 }
 
-export default function Canvas({ children }: CanvasProps) {
+export default function Canvas({ children, hideToggle }: CanvasProps) {
   const [isPlaying, setIsPlaying] = useState(true)
 
   const handleReset = useCallback(() => {
@@ -19,6 +20,8 @@ export default function Canvas({ children }: CanvasProps) {
         isPlaying={isPlaying}
         onToggle={() => setIsPlaying(p => !p)}
         onReset={handleReset}
+        hideToggle={hideToggle}
+        showReset={false} // Hidden as requested, but logic remains
       />
     </div>
   )

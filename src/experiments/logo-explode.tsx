@@ -100,7 +100,7 @@ export default function LogoExplode({ isPlaying: _isPlaying }: ExperimentProps) 
         y: 0,
         rotation: 0,
         duration: inMsRef.current / 1000,
-        ease: 'elastic.out(1, 0.5)',
+        ease: 'elastic.out(1, 0.75)',
       })
     }
 
@@ -112,16 +112,17 @@ export default function LogoExplode({ isPlaying: _isPlaying }: ExperimentProps) 
       hit.removeEventListener('mouseleave', onLeave)
       tl.kill()
     }
-  }, [outMs])
+  }, [])
 
   return (
     <>
       <svg
         ref={svgRef}
-        viewBox="-80 -80 260 260"
+        viewBox="-50 -50 200 200"
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
-        className="w-80 h-80"
+        className="w-[400px] h-[400px]"
+        overflow="visible"
       >
         <path
           data-shape
