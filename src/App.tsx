@@ -1,39 +1,62 @@
 import { useState, useEffect } from "react"
 import { BrowserRouter, useSearchParams } from "react-router-dom"
 import { Menu } from "lucide-react"
-import Sidebar from "./components/Sidebar"
+import Sidebar, { type ExperimentGroup } from "./components/Sidebar"
 import Canvas from "./components/Canvas"
 import type { ExperimentProps } from "./types"
-import LogoWiggle from "./experiments/logo-wiggle"
-import LogoExplode from "./experiments/logo-explode"
-import LogoExplodeV2 from "./experiments/logo-explode-v2"
-import PatternWiggle from "./experiments/pattern-wiggle"
-import VerticalDance from "./experiments/vertical-dance"
 
+import LogoWiggle from "./experiments/logo-wiggle"
+import LogoWiggleTH from "./experiments/logo-wiggle-th"
+import PatternWiggle from "./experiments/pattern-wiggle"
+import PatternWiggleTH from "./experiments/pattern-wiggle-th"
+import LogoExplode from "./experiments/logo-explode"
+import LogoExplodeTH from "./experiments/logo-explode-th"
+import LogoExplodeV2 from "./experiments/logo-explode-v2"
+import LogoExplodeV2TH from "./experiments/logo-explode-v2-th"
+import VerticalDance from "./experiments/vertical-dance"
 import LogoWave from "./experiments/logo-wave"
 import CameraWiggle from "./experiments/camera-wiggle"
+import CameraWiggleTH from "./experiments/camera-wiggle-th"
 import CameraWiggleV2 from "./experiments/camera-wiggle-v2"
+import CameraWiggleV2TH from "./experiments/camera-wiggle-v2-th"
 
 const experiments: Record<
   string,
   { title: string; component: React.ComponentType<ExperimentProps>; hideToggle?: boolean; hideReset?: boolean }
 > = {
-  "logo-wiggle": { title: "Wiggle", component: LogoWiggle, hideReset: true },
-  "pattern-wiggle": { title: "Pattern Wiggle", component: PatternWiggle, hideReset: true },
-  "logo-explode": { title: "Explode", component: LogoExplode, hideToggle: true, hideReset: true },
-  "logo-explode-v2": { title: "Explode v2", component: LogoExplodeV2, hideToggle: true, hideReset: true },
-  "vertical-dance": { title: "Vertical Dance", component: VerticalDance, hideReset: true },
-  "logo-wave": { title: "Wave", component: LogoWave }, // toggle and reset visible
-  "camera-wiggle": { title: "Camera", component: CameraWiggle, hideToggle: true, hideReset: true },
-  "camera-wiggle-v2": { title: "Camera v2", component: CameraWiggleV2, hideToggle: true, hideReset: true },
+  "logo-wiggle":         { title: "Wiggle",         component: LogoWiggle,       hideReset: true },
+  "logo-wiggle-th":      { title: "Wiggle TH",      component: LogoWiggleTH,     hideReset: true },
+  "pattern-wiggle":      { title: "Pattern Wiggle", component: PatternWiggle,    hideReset: true },
+  "pattern-wiggle-th":   { title: "Pattern Wiggle TH", component: PatternWiggleTH, hideReset: true },
+  "logo-explode":        { title: "Explode",        component: LogoExplode,      hideToggle: true, hideReset: true },
+  "logo-explode-th":     { title: "Explode TH",     component: LogoExplodeTH,    hideToggle: true, hideReset: true },
+  "logo-explode-v2":     { title: "Explode v2",     component: LogoExplodeV2,    hideToggle: true, hideReset: true },
+  "logo-explode-v2-th":  { title: "Explode v2 TH",  component: LogoExplodeV2TH,  hideToggle: true, hideReset: true },
+  "vertical-dance":      { title: "Vertical Dance", component: VerticalDance,    hideReset: true },
+  "logo-wave":           { title: "Wave",           component: LogoWave },
+  "camera-wiggle":       { title: "Camera",         component: CameraWiggle,     hideToggle: true, hideReset: true },
+  "camera-wiggle-th":    { title: "Camera TH",      component: CameraWiggleTH,   hideToggle: true, hideReset: true },
+  "camera-wiggle-v2":    { title: "Camera v2",      component: CameraWiggleV2,   hideToggle: true, hideReset: true },
+  "camera-wiggle-v2-th": { title: "Camera v2 TH",   component: CameraWiggleV2TH, hideToggle: true, hideReset: true },
 }
+
+const EXPERIMENT_GROUPS: ExperimentGroup[] = [
+  { label: "Wiggle",         items: [{ id: "logo-wiggle",        label: "EN" }, { id: "logo-wiggle-th",        label: "TH" }] },
+  { label: "Pattern Wiggle", items: [{ id: "pattern-wiggle",     label: "EN" }, { id: "pattern-wiggle-th",     label: "TH" }] },
+  { label: "Explode",        items: [{ id: "logo-explode",       label: "EN" }, { id: "logo-explode-th",       label: "TH" }] },
+  { label: "Explode v2",     items: [{ id: "logo-explode-v2",    label: "EN" }, { id: "logo-explode-v2-th",    label: "TH" }] },
+  { label: "Vertical Dance", items: [{ id: "vertical-dance",     label: "EN" }] },
+  { label: "Wave",           items: [{ id: "logo-wave",          label: "EN" }] },
+  { label: "Camera",         items: [{ id: "camera-wiggle",      label: "EN" }, { id: "camera-wiggle-th",      label: "TH" }] },
+  { label: "Camera v2",      items: [{ id: "camera-wiggle-v2",   label: "EN" }, { id: "camera-wiggle-v2-th",   label: "TH" }] },
+]
 
 function App() {
   const [sidebarOpen, setSidebarOpen] = useState(() => {
     return localStorage.getItem("sidebar") !== "closed"
   })
   const [params] = useSearchParams()
-  const activeId = params.get("experiment") ?? Object.keys(experiments)[0]
+  const activeId = params.get("experiment") ?? EXPERIMENT_GROUPS[0].items[0].id
   const experiment = experiments[activeId] ?? experiments["logo-wiggle"]
   const ActiveComponent = experiment.component
 
@@ -65,15 +88,7 @@ function App() {
       </header>
 
       <div className="relative flex flex-1 overflow-hidden">
-        <Sidebar
-          isOpen={sidebarOpen}
-          experiments={Object.fromEntries(
-            Object.entries(experiments).map(([id, { title }]) => [
-              id,
-              { title },
-            ]),
-          )}
-        />
+        <Sidebar isOpen={sidebarOpen} groups={EXPERIMENT_GROUPS} />
         <Canvas key={activeId} hideToggle={experiment.hideToggle} hideReset={experiment.hideReset}>
           {(props) => <ActiveComponent {...props} />}
         </Canvas>
