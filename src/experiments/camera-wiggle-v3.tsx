@@ -84,9 +84,9 @@ function Slider({ label, value, min, max, step, display, onChange }: SliderProps
 }
 
 export default function CameraWiggleV3(_props: ExperimentProps) {
-  const [phase, setPhase] = useState<Phase>('wiggling')
+  const [_phase, setPhase] = useState<Phase>('wiggling')
   const [cameraState, setCameraState] = useState<CameraState>('idle')
-  const [progress, setProgress] = useState(0)
+  const [_progress, setProgress] = useState(0)
   const [sensitivity, setSensitivity] = useState(20)
   const [simProgress, setSimProgress] = useState(0)
   const [simPlaying, setSimPlaying] = useState(false)
