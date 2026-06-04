@@ -10,9 +10,10 @@ export type ExperimentGroup = {
 type SidebarProps = {
   isOpen: boolean
   groups: ExperimentGroup[]
+  onClose: () => void
 }
 
-export default function Sidebar({ isOpen, groups }: SidebarProps) {
+export default function Sidebar({ isOpen, groups, onClose }: SidebarProps) {
   const ref = useRef<HTMLDivElement>(null)
   const [params, setParams] = useSearchParams()
   const active = params.get('experiment') ?? groups[0]?.items[0]?.id ?? ''
@@ -42,7 +43,7 @@ export default function Sidebar({ isOpen, groups }: SidebarProps) {
               {items.map(({ id, label: itemLabel }) => (
                 <li key={id}>
                   <button
-                    onClick={() => setParams({ experiment: id })}
+                    onClick={() => { setParams({ experiment: id }); onClose() }}
                     className={`px-2 py-1 rounded text-[11px] transition-colors ${
                       active === id
                         ? 'bg-white/10 text-white/80'

@@ -19,6 +19,8 @@ import CameraWiggle from "./experiments/camera-wiggle"
 import CameraWiggleTH from "./experiments/camera-wiggle-th"
 import CameraWiggleV2 from "./experiments/camera-wiggle-v2"
 import CameraWiggleV2TH from "./experiments/camera-wiggle-v2-th"
+import CameraWiggleV3 from "./experiments/camera-wiggle-v3"
+import CameraWiggleV3TH from "./experiments/camera-wiggle-v3-th"
 
 const experiments: Record<
   string,
@@ -34,10 +36,12 @@ const experiments: Record<
   "logo-explode-v2-th":  { title: "Explode v2 TH",  component: LogoExplodeV2TH,  hideToggle: true, hideReset: true },
   "vertical-dance":      { title: "Vertical Dance", component: VerticalDance,    hideReset: true },
   "logo-wave":           { title: "Wave",           component: LogoWave },
-  "camera-wiggle":       { title: "Camera",         component: CameraWiggle,     hideToggle: true, hideReset: true },
-  "camera-wiggle-th":    { title: "Camera TH",      component: CameraWiggleTH,   hideToggle: true, hideReset: true },
-  "camera-wiggle-v2":    { title: "Camera v2",      component: CameraWiggleV2,   hideToggle: true, hideReset: true },
-  "camera-wiggle-v2-th": { title: "Camera v2 TH",   component: CameraWiggleV2TH, hideToggle: true, hideReset: true },
+  "camera-wiggle":       { title: "Camera Explode",    component: CameraWiggle,     hideToggle: true, hideReset: true },
+  "camera-wiggle-th":    { title: "Camera Explode TH", component: CameraWiggleTH,   hideToggle: true, hideReset: true },
+  "camera-wiggle-v2":    { title: "Camera Explode v2",    component: CameraWiggleV2,   hideToggle: true, hideReset: true },
+  "camera-wiggle-v2-th": { title: "Camera Explode v2 TH", component: CameraWiggleV2TH, hideToggle: true, hideReset: true },
+  "camera-wiggle-v3":    { title: "Camera Spin",    component: CameraWiggleV3,   hideToggle: true, hideReset: true },
+  "camera-wiggle-v3-th": { title: "Camera Spin TH", component: CameraWiggleV3TH, hideToggle: true, hideReset: true },
 }
 
 const EXPERIMENT_GROUPS: ExperimentGroup[] = [
@@ -47,8 +51,9 @@ const EXPERIMENT_GROUPS: ExperimentGroup[] = [
   { label: "Explode v2",     items: [{ id: "logo-explode-v2",    label: "EN" }, { id: "logo-explode-v2-th",    label: "TH" }] },
   { label: "Vertical Dance", items: [{ id: "vertical-dance",     label: "EN" }] },
   { label: "Wave",           items: [{ id: "logo-wave",          label: "EN" }] },
-  { label: "Camera",         items: [{ id: "camera-wiggle",      label: "EN" }, { id: "camera-wiggle-th",      label: "TH" }] },
-  { label: "Camera v2",      items: [{ id: "camera-wiggle-v2",   label: "EN" }, { id: "camera-wiggle-v2-th",   label: "TH" }] },
+  { label: "Camera Explode",    items: [{ id: "camera-wiggle",      label: "EN" }, { id: "camera-wiggle-th",      label: "TH" }] },
+  { label: "Camera Explode v2", items: [{ id: "camera-wiggle-v2",   label: "EN" }, { id: "camera-wiggle-v2-th",   label: "TH" }] },
+  { label: "Camera Spin",       items: [{ id: "camera-wiggle-v3",   label: "EN" }, { id: "camera-wiggle-v3-th", label: "TH" }] },
 ]
 
 function App() {
@@ -88,7 +93,7 @@ function App() {
       </header>
 
       <div className="relative flex flex-1 overflow-hidden">
-        <Sidebar isOpen={sidebarOpen} groups={EXPERIMENT_GROUPS} />
+        <Sidebar isOpen={sidebarOpen} groups={EXPERIMENT_GROUPS} onClose={() => setSidebarOpen(false)} />
         <Canvas key={activeId} hideToggle={experiment.hideToggle} hideReset={experiment.hideReset}>
           {(props) => <ActiveComponent {...props} />}
         </Canvas>
