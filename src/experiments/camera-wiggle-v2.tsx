@@ -105,6 +105,8 @@ export default function CameraWiggleV2(_props: ExperimentProps) {
   const explodingRef = useRef(false)
   const progressRef = useRef(0)
   const isBracedRef = useRef(false)
+  const posWiggleAmplitudeRef = useRef(0)
+  const posWigglesEnabledRef = useRef(false)
   const phaseRef = useRef<Phase>('wiggling')
 
   function startAllIdleTweens() {
@@ -122,6 +124,30 @@ export default function CameraWiggleV2(_props: ExperimentProps) {
         delay,
       })
     })
+    posWiggleAmplitudeRef.current = 0
+    startPositionWiggles()
+  }
+
+  function wiggleShapePos(shape: SVGPathElement) {
+    if (!posWigglesEnabledRef.current) return
+    const amp = posWiggleAmplitudeRef.current
+    gsap.to(shape, {
+      x: gsap.utils.random(-amp, amp),
+      y: gsap.utils.random(-amp, amp),
+      duration: gsap.utils.random(0.08, 0.18),
+      ease: 'power1.inOut',
+      onComplete: () => wiggleShapePos(shape),
+    })
+  }
+
+  function startPositionWiggles() {
+    posWigglesEnabledRef.current = true
+    shapesRef.current.forEach(shape => wiggleShapePos(shape))
+  }
+
+  function stopPositionWiggles() {
+    posWigglesEnabledRef.current = false
+    shapesRef.current.forEach(shape => gsap.killTweensOf(shape, 'x,y'))
   }
 
   function startTensionShake() {
@@ -170,6 +196,7 @@ export default function CameraWiggleV2(_props: ExperimentProps) {
     setPhase('exploding')
     stopTensionShake()
     gsap.set(svgRef.current, { scale: 1, transformOrigin: '50% 50%' })
+    stopPositionWiggles()
     gsap.killTweensOf(shapesRef.current)
 
     // Trigger expanding background circle
@@ -238,7 +265,9 @@ export default function CameraWiggleV2(_props: ExperimentProps) {
 
     // Scale compression & inward brace: 90-105% progress
     const p = progressRef.current
+    posWiggleAmplitudeRef.current = p <= 0 ? 0 : Math.max(0.1, 8 * p / 100)
     if (p >= 90) {
+      if (posWigglesEnabledRef.current) stopPositionWiggles()
       isBracedRef.current = true
       const tensionT = Math.min((p - 90) / 15, 1) // 0→1 over 90-105%
       const scale = 1 - tensionT * 0.2            // 1.0 → 0.8
@@ -268,6 +297,7 @@ export default function CameraWiggleV2(_props: ExperimentProps) {
       })
     } else if (isBracedRef.current) {
       isBracedRef.current = false
+      startPositionWiggles()
       gsap.to(svgRef.current, {
         scale: 1,
         transformOrigin: '50% 50%',
@@ -342,6 +372,7 @@ export default function CameraWiggleV2(_props: ExperimentProps) {
 
     return () => {
       if (tickRef.current) clearInterval(tickRef.current)
+      stopPositionWiggles()
       streamRef.current?.getTracks().forEach(t => t.stop())
       gsap.killTweensOf(shapes)
       gsap.killTweensOf(svgRef.current)
