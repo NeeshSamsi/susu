@@ -23,7 +23,7 @@ export default function Sidebar({ isOpen, experiments }: SidebarProps) {
   return (
     <div
       ref={ref}
-      className="absolute left-0 top-0 bottom-0 w-60 bg-[#111] border-r border-white/10 z-10 flex flex-col pt-2"
+      className="absolute left-0 top-0 bottom-0 w-60 bg-[#111] border-r border-white/10 z-40 flex flex-col pt-2"
       style={{ transform: 'translateX(-240px)' }}
     >
       <p className="text-white/30 text-xs uppercase tracking-widest px-4 py-2">Experiments</p>

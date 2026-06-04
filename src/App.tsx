@@ -51,7 +51,7 @@ function App() {
 
   return (
     <div className="flex flex-col h-screen bg-[#0a0a0a] text-white overflow-hidden">
-      <header className="h-10 flex items-center gap-3 px-4 border-b border-white/10 shrink-0 z-20">
+      <header className="h-10 flex items-center gap-3 px-4 border-b border-white/10 shrink-0 z-50">
         <button
           onClick={() => setSidebarOpen((o) => !o)}
           className="text-white/50 hover:text-white transition-colors flex items-center justify-center"

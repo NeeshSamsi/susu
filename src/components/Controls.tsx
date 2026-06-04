@@ -12,7 +12,7 @@ export default function Controls({ isPlaying, onToggle, onReset, hideToggle, sho
   const hasButtons = !hideToggle || showReset
 
   return (
-    <div className={`absolute bottom-6 left-1/2 -translate-x-1/2 flex items-center gap-3 bg-[#000C31]/8 backdrop-blur border border-[#000C31]/15 rounded-full p-1.5 ${hasButtons ? 'pr-5' : 'pr-1.5'} text-[#000C31] text-sm select-none shadow-sm`}>
+    <div className={`absolute bottom-6 left-1/2 -translate-x-1/2 flex items-center gap-3 bg-[#000C31]/8 backdrop-blur border border-[#000C31]/15 rounded-full p-1.5 ${hasButtons ? 'pr-5' : 'pr-1.5'} text-[#000C31] text-sm select-none shadow-sm z-30`}>
       <a
         href="/"
         target="_parent"

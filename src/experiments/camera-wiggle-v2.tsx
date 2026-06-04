@@ -356,7 +356,7 @@ export default function CameraWiggleV2(_props: ExperimentProps) {
       {/* Expanding circle background */}
       <div 
         ref={circleRef}
-        className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full"
+        className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full pointer-events-none"
         style={{ 
           width: '200vmax', 
           height: '200vmax', 
@@ -366,7 +366,7 @@ export default function CameraWiggleV2(_props: ExperimentProps) {
       />
 
       {/* Progress bar */}
-      <div className="hidden absolute top-0 left-0 right-0 h-1.5 bg-[#FFFAEF]/10 z-10">
+      <div className="hidden absolute top-0 left-0 right-0 h-1.5 bg-[#FFFAEF]/10 z-10 pointer-events-none">
         <div
           className="h-full bg-[#FFFAEF] transition-none"
           style={{ width: `${Math.min((progress / 100) * 100, 100)}%` }}
@@ -377,13 +377,13 @@ export default function CameraWiggleV2(_props: ExperimentProps) {
       </div>
 
       {/* Logo */}
-      <div className="absolute inset-0 flex items-center justify-center z-10">
+      <div className="absolute inset-0 flex items-center justify-center z-10 pointer-events-none">
         <svg
           ref={svgRef}
           viewBox="0 0 100 100"
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
-          className="w-80 h-96"
+          className="w-80 h-96 pointer-events-auto"
           overflow="visible"
         >
           {initialPaths.map((d, i) => (
