@@ -198,7 +198,7 @@ export default function PatternWiggleTH({ isPlaying }: ExperimentProps) {
                 <path
                   key={`${i}-${j}-${si}`}
                   data-pattern-shape=""
-                  fill="#000C31"
+                  fill="#1C42FF"
                   d={d}
                   style={{ transformOrigin: '50% 50%' }}
                 />

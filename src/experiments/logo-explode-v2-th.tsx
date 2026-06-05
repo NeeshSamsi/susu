@@ -153,7 +153,7 @@ export default function LogoExplodeV2TH({ isPlaying: _isPlaying }: ExperimentPro
           <path
             key={i}
             data-shape
-            fill="#000C31"
+            fill="#1C42FF"
             d={d}
           />
         ))}

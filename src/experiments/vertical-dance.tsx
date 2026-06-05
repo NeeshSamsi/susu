@@ -186,7 +186,7 @@ export default function VerticalDance({ isPlaying }: ExperimentProps) {
           <path
             key={i}
             ref={el => { if (el) shapesRef.current[i] = el }}
-            fill="#000C31"
+            fill="#1C42FF"
             d={d}
           />
         ))}

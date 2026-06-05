@@ -391,7 +391,7 @@ export default function CameraWiggleTH(_props: ExperimentProps) {
         overflow="visible"
       >
         {initialPaths.map((d, i) => (
-          <path key={i} data-shape={i} fill="#000C31" d={d} />
+          <path key={i} data-shape={i} fill="#1C42FF" d={d} />
         ))}
       </svg>
 

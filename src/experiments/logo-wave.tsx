@@ -109,7 +109,7 @@ export default function LogoWave({ isPlaying }: ExperimentProps) {
           <g key={i} style={{ transform: `translateX(${[12, 4, -4, -12][i]}px)` }}>
             <path
               ref={el => { if (el) shapesRef.current[i] = el }}
-              fill="#000C31"
+              fill="#1C42FF"
               d={d}
             />
           </g>

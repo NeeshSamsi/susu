@@ -161,7 +161,7 @@ export default function LogoWiggleTH({ isPlaying }: ExperimentProps) {
         overflow="visible"
       >
         {TH_PATHS.map((d, i) => (
-          <path key={i} data-shape fill="#000C31" d={d} />
+          <path key={i} data-shape fill="#1C42FF" d={d} />
         ))}
         {bboxes.map((bb, i) => (
           <rect

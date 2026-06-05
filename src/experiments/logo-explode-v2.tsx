@@ -178,7 +178,7 @@ export default function LogoExplodeV2({ isPlaying: _isPlaying }: ExperimentProps
           <path
             key={i}
             data-shape
-            fill="#000C31"
+            fill="#1C42FF"
             d={d}
           />
         ))}
