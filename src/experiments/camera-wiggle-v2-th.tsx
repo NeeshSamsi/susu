@@ -1,4 +1,5 @@
 import { useRef, useEffect, useState } from 'react'
+import { flushSync } from 'react-dom'
 import gsap from 'gsap'
 import type { ExperimentProps } from '../types'
 
@@ -224,6 +225,7 @@ export default function CameraWiggleV2TH(_props: ExperimentProps) {
     const combo = COMBINATIONS[comboIdxRef.current]
     comboIdxRef.current = (comboIdxRef.current + 1) % COMBINATIONS.length
     setCircleColor(combo.bg)
+    setLogoColor(combo.logo)
     if (circleRef.current) {
       gsap.fromTo(circleRef.current,
         { scale: 0 },
@@ -232,8 +234,7 @@ export default function CameraWiggleV2TH(_props: ExperimentProps) {
           duration: 0.6,
           ease: 'power3.out',
           onComplete: () => {
-            setBgColor(combo.bg)
-            setLogoColor(combo.logo)
+            flushSync(() => setBgColor(combo.bg))
             gsap.set(circleRef.current, { scale: 0 })
           },
         }
