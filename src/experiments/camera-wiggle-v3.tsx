@@ -41,7 +41,14 @@ const SPIN_T4 = 80
 // All-shapes spin → transition to next composition
 const TRANSITION_THRESHOLD = 100
 
-const PALETTE = ['#114DFF', '#7F3DE2', '#E146D4', '#E14646', '#EBB330']
+const INITIAL = { bg: '#FFFAEF', logo: '#1C42FF' }
+const COMBINATIONS = [
+  { bg: '#FF0066', logo: '#E0FE00' },
+  { bg: '#37FFB9', logo: '#1C42FF' },
+  { bg: '#E0FE00', logo: '#FF0066' },
+  { bg: '#1C42FF', logo: '#37FFB9' },
+  { bg: '#E0FE00', logo: '#FF0066' },
+]
 
 const BRACE_DESTINATIONS = [
   { x: -12, y: 12 },
@@ -94,8 +101,10 @@ export default function CameraWiggleV3(_props: ExperimentProps) {
   const simStartTimeRef = useRef<number | null>(null)
   const simStartValRef = useRef(0)
 
-  const [bgColor, setBgColor] = useState(PALETTE[0])
-  const [nextColor, setNextColor] = useState(PALETTE[1])
+  const [bgColor, setBgColor] = useState(INITIAL.bg)
+  const [logoColor, setLogoColor] = useState(INITIAL.logo)
+  const [circleColor, setCircleColor] = useState(COMBINATIONS[0].bg)
+  const comboIdxRef = useRef(0)
   const circleRef = useRef<HTMLDivElement>(null)
 
   const svgRef = useRef<SVGSVGElement>(null)
@@ -239,9 +248,9 @@ export default function CameraWiggleV3(_props: ExperimentProps) {
     idleTweensRef.current = [null, null, null, null]
 
     // Expand background colour
-    const availableColors = PALETTE.filter(c => c !== bgColor)
-    const newColor = availableColors[Math.floor(Math.random() * availableColors.length)]
-    setNextColor(newColor)
+    const combo = COMBINATIONS[comboIdxRef.current]
+    comboIdxRef.current = (comboIdxRef.current + 1) % COMBINATIONS.length
+    setCircleColor(combo.bg)
     if (circleRef.current) {
       gsap.fromTo(circleRef.current,
         { scale: 0 },
@@ -250,7 +259,8 @@ export default function CameraWiggleV3(_props: ExperimentProps) {
           duration: 0.55,
           ease: 'power3.out',
           onComplete: () => {
-            setBgColor(newColor)
+            setBgColor(combo.bg)
+            setLogoColor(combo.logo)
             gsap.set(circleRef.current, { scale: 0 })
           },
         }
@@ -467,7 +477,7 @@ export default function CameraWiggleV3(_props: ExperimentProps) {
       <div
         ref={circleRef}
         className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full pointer-events-none"
-        style={{ width: '200vmax', height: '200vmax', backgroundColor: nextColor, transform: 'scale(0)' }}
+        style={{ width: '200vmax', height: '200vmax', backgroundColor: circleColor, transform: 'scale(0)' }}
       />
 
       {/* Logo */}
@@ -481,7 +491,7 @@ export default function CameraWiggleV3(_props: ExperimentProps) {
           overflow="visible"
         >
           {initialPaths.map((d, i) => (
-            <path key={i} data-shape={i} fill="#FFFAEF" d={d} />
+            <path key={i} data-shape={i} fill={logoColor} d={d} />
           ))}
         </svg>
       </div>

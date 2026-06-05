@@ -43,7 +43,14 @@ const DESTINATIONS = [
   { x: -70, y:  60 },
 ]
 
-const PALETTE = ['#114DFF', '#7F3DE2', '#E146D4', '#E14646', '#EBB330']
+const INITIAL = { bg: '#FFFAEF', logo: '#1C42FF' }
+const COMBINATIONS = [
+  { bg: '#FF0066', logo: '#E0FE00' },
+  { bg: '#37FFB9', logo: '#1C42FF' },
+  { bg: '#E0FE00', logo: '#FF0066' },
+  { bg: '#1C42FF', logo: '#37FFB9' },
+  { bg: '#E0FE00', logo: '#FF0066' },
+]
 
 type SliderProps = {
   label: string
@@ -83,9 +90,13 @@ export default function CameraWiggleV2(_props: ExperimentProps) {
   const [cameraState, setCameraState] = useState<CameraState>('idle')
   const [progress, setProgress] = useState(0)
   const [sensitivity, setSensitivity] = useState(20)
+  const [simProgress, setSimProgress] = useState(0)
+  const [simPlaying, setSimPlaying] = useState(false)
 
-  const [bgColor, setBgColor] = useState(PALETTE[0])
-  const [nextColor, setNextColor] = useState(PALETTE[1])
+  const [bgColor, setBgColor] = useState(INITIAL.bg)
+  const [logoColor, setLogoColor] = useState(INITIAL.logo)
+  const [circleColor, setCircleColor] = useState(COMBINATIONS[0].bg)
+  const comboIdxRef = useRef(0)
   const circleRef = useRef<HTMLDivElement>(null)
 
   const svgRef = useRef<SVGSVGElement>(null)
@@ -100,6 +111,9 @@ export default function CameraWiggleV2(_props: ExperimentProps) {
   const drainRateRef = useRef(0.5)
   useEffect(() => { drainRateRef.current = drainRate }, [drainRate])
   const tickRef = useRef<ReturnType<typeof setInterval> | null>(null)
+  const simRafRef = useRef<number | null>(null)
+  const simStartTimeRef = useRef<number | null>(null)
+  const simStartValRef = useRef(0)
   const streamRef = useRef<MediaStream | null>(null)
   const variationIndexRef = useRef(0)
   const explodingRef = useRef(false)
@@ -181,6 +195,8 @@ export default function CameraWiggleV2(_props: ExperimentProps) {
         explodingRef.current = false
         progressRef.current = 0
         setProgress(0)
+        setSimProgress(0)
+        stopSimPlay()
         phaseRef.current = 'wiggling'
         setPhase('wiggling')
         startAllIdleTweens()
@@ -200,23 +216,21 @@ export default function CameraWiggleV2(_props: ExperimentProps) {
     gsap.killTweensOf(shapesRef.current)
 
     // Trigger expanding background circle
-    const currentBg = bgColor
-    const availableColors = PALETTE.filter(c => c !== currentBg)
-    const newColor = availableColors[Math.floor(Math.random() * availableColors.length)]
-    
-    setNextColor(newColor)
-    
+    const combo = COMBINATIONS[comboIdxRef.current]
+    comboIdxRef.current = (comboIdxRef.current + 1) % COMBINATIONS.length
+    setCircleColor(combo.bg)
     if (circleRef.current) {
-      gsap.fromTo(circleRef.current, 
+      gsap.fromTo(circleRef.current,
         { scale: 0 },
-        { 
-          scale: 1, 
-          duration: 0.6, 
+        {
+          scale: 1,
+          duration: 0.6,
           ease: 'power3.out',
           onComplete: () => {
-            setBgColor(newColor)
+            setBgColor(combo.bg)
+            setLogoColor(combo.logo)
             gsap.set(circleRef.current, { scale: 0 })
-          }
+          },
         }
       )
     }
@@ -372,6 +386,7 @@ export default function CameraWiggleV2(_props: ExperimentProps) {
 
     return () => {
       if (tickRef.current) clearInterval(tickRef.current)
+      if (simRafRef.current !== null) cancelAnimationFrame(simRafRef.current)
       stopPositionWiggles()
       streamRef.current?.getTracks().forEach(t => t.stop())
       gsap.killTweensOf(shapes)
@@ -379,6 +394,45 @@ export default function CameraWiggleV2(_props: ExperimentProps) {
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
+
+  function stopSimPlay() {
+    if (simRafRef.current !== null) {
+      cancelAnimationFrame(simRafRef.current)
+      simRafRef.current = null
+    }
+    setSimPlaying(false)
+    simStartTimeRef.current = null
+  }
+
+  function startSimPlay() {
+    if (simRafRef.current !== null) return
+    simStartValRef.current = simProgress
+    simStartTimeRef.current = null
+    setSimPlaying(true)
+
+    function frame(ts: number) {
+      if (simStartTimeRef.current === null) simStartTimeRef.current = ts
+      const elapsed = ts - simStartTimeRef.current
+      const val = Math.min(simStartValRef.current + ((110 - simStartValRef.current) * elapsed) / 5000, 110)
+      const rounded = Math.round(val)
+      setSimProgress(rounded)
+      if (phaseRef.current !== 'exploding' && phaseRef.current !== 'reforming') {
+        progressRef.current = rounded
+        setProgress(rounded)
+        if (rounded >= EXPLOSION_THRESHOLD) {
+          triggerExplosion()
+          stopSimPlay()
+          return
+        }
+      }
+      if (val < 110) {
+        simRafRef.current = requestAnimationFrame(frame)
+      } else {
+        stopSimPlay()
+      }
+    }
+    simRafRef.current = requestAnimationFrame(frame)
+  }
 
   const initialPaths = VARIATIONS[0]
 
@@ -391,7 +445,7 @@ export default function CameraWiggleV2(_props: ExperimentProps) {
         style={{ 
           width: '200vmax', 
           height: '200vmax', 
-          backgroundColor: nextColor,
+          backgroundColor: circleColor,
           transform: 'scale(0)' 
         }}
       />
@@ -418,9 +472,41 @@ export default function CameraWiggleV2(_props: ExperimentProps) {
           overflow="visible"
         >
           {initialPaths.map((d, i) => (
-            <path key={i} data-shape={i} fill="#FFFAEF" d={d} />
+            <path key={i} data-shape={i} fill={logoColor} d={d} />
           ))}
         </svg>
+      </div>
+
+      {/* Sim progress slider */}
+      <div className="absolute bottom-4 left-4 z-20 flex items-center gap-3 bg-black/30 backdrop-blur-sm rounded-xl px-4 py-3 border border-white/10">
+        <span className="text-[#FFFAEF]/50 text-[10px] uppercase tracking-widest shrink-0">Sim</span>
+        <button
+          onClick={() => simPlaying ? stopSimPlay() : startSimPlay()}
+          className="text-[#FFFAEF]/60 hover:text-[#FFFAEF] transition-colors shrink-0 text-[11px] leading-none"
+        >
+          {simPlaying ? '■' : '▶'}
+        </button>
+        <input
+          type="range" min={0} max={110} step={1} value={simProgress}
+          onChange={e => {
+            const val = Number(e.target.value)
+            setSimProgress(val)
+            if (phaseRef.current === 'exploding' || phaseRef.current === 'reforming') return
+            progressRef.current = val
+            setProgress(val)
+            if (val >= EXPLOSION_THRESHOLD) {
+              triggerExplosion()
+            }
+          }}
+          className="w-36 h-[3px] appearance-none rounded-full cursor-pointer
+            bg-[#FFFAEF]/20
+            [&::-webkit-slider-thumb]:appearance-none
+            [&::-webkit-slider-thumb]:w-3
+            [&::-webkit-slider-thumb]:h-3
+            [&::-webkit-slider-thumb]:rounded-full
+            [&::-webkit-slider-thumb]:bg-[#FFFAEF]"
+        />
+        <span className="text-[#FFFAEF]/60 text-[10px] tabular-nums w-7 shrink-0">{simProgress}%</span>
       </div>
 
       {/* Camera preview */}

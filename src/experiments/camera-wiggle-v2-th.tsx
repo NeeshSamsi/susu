@@ -55,7 +55,14 @@ const DESTINATIONS = [
   { x: 40,  y: 70  },
 ]
 
-const PALETTE = ['#114DFF', '#7F3DE2', '#E146D4', '#E14646', '#EBB330']
+const INITIAL = { bg: '#FFFAEF', logo: '#1C42FF' }
+const COMBINATIONS = [
+  { bg: '#FF0066', logo: '#E0FE00' },
+  { bg: '#37FFB9', logo: '#1C42FF' },
+  { bg: '#E0FE00', logo: '#FF0066' },
+  { bg: '#1C42FF', logo: '#37FFB9' },
+  { bg: '#E0FE00', logo: '#FF0066' },
+]
 
 type SliderProps = {
   label: string
@@ -96,8 +103,10 @@ export default function CameraWiggleV2TH(_props: ExperimentProps) {
   const [progress, setProgress] = useState(0)
   const [sensitivity, setSensitivity] = useState(20)
 
-  const [bgColor, setBgColor] = useState(PALETTE[0])
-  const [nextColor, setNextColor] = useState(PALETTE[1])
+  const [bgColor, setBgColor] = useState(INITIAL.bg)
+  const [logoColor, setLogoColor] = useState(INITIAL.logo)
+  const [circleColor, setCircleColor] = useState(COMBINATIONS[0].bg)
+  const comboIdxRef = useRef(0)
   const circleRef = useRef<HTMLDivElement>(null)
 
   const svgRef = useRef<SVGSVGElement>(null)
@@ -212,12 +221,9 @@ export default function CameraWiggleV2TH(_props: ExperimentProps) {
     gsap.killTweensOf(shapesRef.current)
 
     // Trigger expanding background circle
-    const currentBg = bgColor
-    const availableColors = PALETTE.filter(c => c !== currentBg)
-    const newColor = availableColors[Math.floor(Math.random() * availableColors.length)]
-
-    setNextColor(newColor)
-
+    const combo = COMBINATIONS[comboIdxRef.current]
+    comboIdxRef.current = (comboIdxRef.current + 1) % COMBINATIONS.length
+    setCircleColor(combo.bg)
     if (circleRef.current) {
       gsap.fromTo(circleRef.current,
         { scale: 0 },
@@ -226,9 +232,10 @@ export default function CameraWiggleV2TH(_props: ExperimentProps) {
           duration: 0.6,
           ease: 'power3.out',
           onComplete: () => {
-            setBgColor(newColor)
+            setBgColor(combo.bg)
+            setLogoColor(combo.logo)
             gsap.set(circleRef.current, { scale: 0 })
-          }
+          },
         }
       )
     }
@@ -405,7 +412,7 @@ export default function CameraWiggleV2TH(_props: ExperimentProps) {
         style={{
           width: '200vmax',
           height: '200vmax',
-          backgroundColor: nextColor,
+          backgroundColor: circleColor,
           transform: 'scale(0)'
         }}
       />
@@ -432,7 +439,7 @@ export default function CameraWiggleV2TH(_props: ExperimentProps) {
           overflow="visible"
         >
           {initialPaths.map((d, i) => (
-            <path key={i} data-shape={i} fill="#FFFAEF" d={d} />
+            <path key={i} data-shape={i} fill={logoColor} d={d} />
           ))}
         </svg>
       </div>
